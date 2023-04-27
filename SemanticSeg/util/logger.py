@@ -4,6 +4,7 @@ import functools
 import sys
 from termcolor import colored
 
+
 class _ColorfulFormatter(logging.Formatter):
     def __init__(self, *args, **kwargs):
         self._root_name = kwargs.pop("root_name") + "."
@@ -26,9 +27,7 @@ class _ColorfulFormatter(logging.Formatter):
 
 # so that calling setup_logger multiple times won't add many handlers
 @functools.lru_cache()
-def get_logger(
-    output=None, color=True, name="main-logger", abbrev_name=None
-    ):
+def get_logger(output=None, color=True, name="main-logger", abbrev_name=None):
     """
     Initialize the detectron2 logger and set its verbosity level to "INFO".
     Args:
@@ -78,6 +77,7 @@ def get_logger(
         logger.addHandler(fh)
 
     return logger
+
 
 # cache the opened file object, so that different calls to `setup_logger`
 # with the same file name can safely write to the same file.

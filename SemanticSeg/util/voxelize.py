@@ -4,6 +4,7 @@ import torch
 from torch_geometric.nn import voxel_grid
 from MinkowskiEngine.utils import sparse_quantize
 
+
 def grid_sample(pos, batch_index, size, start=None, return_p2v=True):
     # pos: float [N, 3]
     # batch_szie: long int
@@ -15,16 +16,18 @@ def grid_sample(pos, batch_index, size, start=None, return_p2v=True):
 
     # batch [N, ]
     batch = torch.zeros(pos.shape[0])
-    for i in range (1, len(batch_index)):
-        batch[batch_index[i-1]:batch_index[i]] = i
-        
-    cluster = voxel_grid(pos, batch, size, start=start) #[N, ]
+    for i in range(1, len(batch_index)):
+        batch[batch_index[i - 1] : batch_index[i]] = i
+
+    cluster = voxel_grid(pos, batch, size, start=start)  # [N, ]
 
     if return_p2v == False:
         unique, cluster = torch.unique(cluster, sorted=True, return_inverse=True)
         return cluster
 
-    unique, cluster, counts = torch.unique(cluster, sorted=True, return_inverse=True, return_counts=True)
+    unique, cluster, counts = torch.unique(
+        cluster, sorted=True, return_inverse=True, return_counts=True
+    )
 
     # print("unique.shape: {}, cluster.shape: {}, counts.shape: {}".format(unique.shape, cluster.shape, counts.shape))
 
@@ -33,16 +36,17 @@ def grid_sample(pos, batch_index, size, start=None, return_p2v=True):
     # obtain p2v_map
     n = unique.shape[0]
     k = counts.max().item()
-    p2v_map = cluster.new_zeros(n, k) #[n, k]
-    mask = torch.arange(k).cuda().unsqueeze(0) < counts.unsqueeze(-1) #[n, k]
+    p2v_map = cluster.new_zeros(n, k)  # [n, k]
+    mask = torch.arange(k).cuda().unsqueeze(0) < counts.unsqueeze(-1)  # [n, k]
     p2v_map[mask] = torch.argsort(cluster)
     # max_point
     max_point = 48
     if k > max_point:
         counts = torch.where(counts > max_point, max_point, counts)
-        p2v_map = p2v_map[:,0:max_point]
+        p2v_map = p2v_map[:, 0:max_point]
 
     return cluster, p2v_map, counts
+
 
 def fnv_hash_vec(arr):
     """
@@ -52,7 +56,9 @@ def fnv_hash_vec(arr):
     # Floor first for negative coordinates
     arr = arr.copy()
     arr = arr.astype(np.uint64, copy=False)
-    hashed_arr = np.uint64(14695981039346656037) * np.ones(arr.shape[0], dtype=np.uint64)
+    hashed_arr = np.uint64(14695981039346656037) * np.ones(
+        arr.shape[0], dtype=np.uint64
+    )
     for j in range(arr.shape[1]):
         hashed_arr *= np.uint64(1099511628211)
         hashed_arr = np.bitwise_xor(hashed_arr, arr[:, j])
@@ -78,9 +84,9 @@ def ravel_hash_vec(arr):
     return keys
 
 
-def voxelize(coord, voxel_size=0.05, hash_type='fnv', mode=0):
+def voxelize(coord, voxel_size=0.05, hash_type="fnv", mode=0):
     discrete_coord = np.floor(coord / np.array(voxel_size))
-    if hash_type == 'ravel':
+    if hash_type == "ravel":
         key = ravel_hash_vec(discrete_coord)
     else:
         key = fnv_hash_vec(discrete_coord)
@@ -89,14 +95,17 @@ def voxelize(coord, voxel_size=0.05, hash_type='fnv', mode=0):
     key_sort = key[idx_sort]
     _, count = np.unique(key_sort, return_counts=True)
     if mode == 0:  # train mode
-        #idx_select = np.cumsum(np.insert(count, 0, 0)[0:-1])
-        idx_select = np.cumsum(np.insert(count, 0, 0)[0:-1]) + np.random.randint(0, count.max(), count.size) % count
+        # idx_select = np.cumsum(np.insert(count, 0, 0)[0:-1])
+        idx_select = (
+            np.cumsum(np.insert(count, 0, 0)[0:-1])
+            + np.random.randint(0, count.max(), count.size) % count
+        )
         idx_unique = idx_sort[idx_select]
         return idx_unique
     else:  # val mode
         return idx_sort, count
 
-    '''
+    """
     #_, idx = np.unique(key, return_index=True)
     #return idx
 
@@ -105,10 +114,11 @@ def voxelize(coord, voxel_size=0.05, hash_type='fnv', mode=0):
     _, idx_start, count = np.unique(key_sort, return_counts=True, return_index=True)
     idx_list = np.split(idx_sort, idx_start[1:])
     return idx_list
-    '''
+    """
 
-def voxelize_and_inverse(coord, hash_type='fnv', mode=0):
-    if hash_type == 'ravel':
+
+def voxelize_and_inverse(coord, hash_type="fnv", mode=0):
+    if hash_type == "ravel":
         key = ravel_hash_vec(coord)
     else:
         key = fnv_hash_vec(coord)
@@ -118,13 +128,15 @@ def voxelize_and_inverse(coord, hash_type='fnv', mode=0):
     inv_sort[idx_sort] = np.arange(N)
     key_sort = key[idx_sort]
     assert np.array_equal(key_sort[inv_sort], key)
-    uniq_key, _, inv_idx, counts = np.unique(key_sort, return_index=True, return_inverse=True, return_counts=True)
+    uniq_key, _, inv_idx, counts = np.unique(
+        key_sort, return_index=True, return_inverse=True, return_counts=True
+    )
     # select the first
     idx_select = np.cumsum(np.insert(counts, 0, 0)[0:-1])
     uniq_idx = idx_sort[idx_select]
     inv_idx = inv_idx[inv_sort]
-    
-    assert len(uniq_idx)==len(uniq_key)
+
+    assert len(uniq_idx) == len(uniq_key)
     assert np.array_equal(key[uniq_idx], uniq_key)
     assert len(inv_idx), len(key)
     assert np.array_equal(uniq_key[inv_idx], key)
@@ -132,17 +144,25 @@ def voxelize_and_inverse(coord, hash_type='fnv', mode=0):
 
 
 from MinkowskiEngine.utils import sparse_quantize
+
+
 def voxel_rand(coord):
     int_coord = np.floor(coord)
     _, _, key = sparse_quantize(int_coord, return_index=True, return_inverse=True)
     idx_sort = np.argsort(key)
     key_sort = key[idx_sort]
     _, count = np.unique(key_sort, return_counts=True)
-    idx_select = np.cumsum(np.insert(count, 0, 0)[0:-1]) + np.random.randint(0, count.max(), count.size) % count
+    idx_select = (
+        np.cumsum(np.insert(count, 0, 0)[0:-1])
+        + np.random.randint(0, count.max(), count.size) % count
+    )
     idx_unique = idx_sort[idx_select]
     return idx_unique
 
+
 def voxel_rand_inverse(coord):
     int_coord = np.floor(coord)
-    _, unique_map, inverse_map = sparse_quantize(int_coord, return_index=True, return_inverse=True)
+    _, unique_map, inverse_map = sparse_quantize(
+        int_coord, return_index=True, return_inverse=True
+    )
     return unique_map, inverse_map

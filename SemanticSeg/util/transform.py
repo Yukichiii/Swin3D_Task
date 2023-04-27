@@ -18,7 +18,8 @@ class RandomShift_test(object):
             return points, color, normal
 
     def __repr__(self):
-        return 'RandomShift(shift_range: {})'.format(self.shift_range)
+        return "RandomShift(shift_range: {})".format(self.shift_range)
+
 
 class Compose(object):
     def __init__(self, transforms):
@@ -35,8 +36,12 @@ class Compose(object):
             return points, color, normal
 
     def __repr__(self):
-        return 'Compose(\n' + '\n'.join(['\t' + t.__repr__() + ',' for t in self.transforms]) + '\n)'
-            
+        return (
+            "Compose(\n"
+            + "\n".join(["\t" + t.__repr__() + "," for t in self.transforms])
+            + "\n)"
+        )
+
 
 class ToTensor(object):
     def __call__(self, data, label):
@@ -62,9 +67,13 @@ class RandomRotate(object):
             rotate_angle = self.rotate_angle
         cosval, sinval = np.cos(rotate_angle), np.sin(rotate_angle)
         if self.along_z:
-            rotation_matrix = np.array([[cosval, sinval, 0], [-sinval, cosval, 0], [0, 0, 1]])
+            rotation_matrix = np.array(
+                [[cosval, sinval, 0], [-sinval, cosval, 0], [0, 0, 1]]
+            )
         else:
-            rotation_matrix = np.array([[cosval, 0, sinval], [0, 1, 0], [-sinval, 0, cosval]])
+            rotation_matrix = np.array(
+                [[cosval, 0, sinval], [0, 1, 0], [-sinval, 0, cosval]]
+            )
         points[:, 0:3] = np.dot(points[:, 0:3], rotation_matrix)
         if self.color_rotate:
             color[:, 0:3] = np.dot(color[:, 0:3], rotation_matrix)
@@ -72,11 +81,13 @@ class RandomRotate(object):
             return points, color
         else:
             normal = np.dot(normal, rotation_matrix)
-            #print("rotate normal")
+            # print("rotate normal")
             return points, color, normal
-    
+
     def __repr__(self):
-        return 'RandomRotate(rotate_angle: {}, along_z: {})'.format(self.rotate_angle, self.along_z)
+        return "RandomRotate(rotate_angle: {}, along_z: {})".format(
+            self.rotate_angle, self.along_z
+        )
 
 
 class RandomRotatePerturbation(object):
@@ -85,16 +96,30 @@ class RandomRotatePerturbation(object):
         self.angle_clip = angle_clip
 
     def __call__(self, data, label):
-        angles = np.clip(self.angle_sigma*np.random.randn(3), -self.angle_clip, self.angle_clip)
-        Rx = np.array([[1, 0, 0],
-                       [0, np.cos(angles[0]), -np.sin(angles[0])],
-                       [0, np.sin(angles[0]), np.cos(angles[0])]])
-        Ry = np.array([[np.cos(angles[1]), 0, np.sin(angles[1])],
-                       [0, 1, 0],
-                       [-np.sin(angles[1]), 0, np.cos(angles[1])]])
-        Rz = np.array([[np.cos(angles[2]), -np.sin(angles[2]), 0],
-                       [np.sin(angles[2]), np.cos(angles[2]), 0],
-                       [0, 0, 1]])
+        angles = np.clip(
+            self.angle_sigma * np.random.randn(3), -self.angle_clip, self.angle_clip
+        )
+        Rx = np.array(
+            [
+                [1, 0, 0],
+                [0, np.cos(angles[0]), -np.sin(angles[0])],
+                [0, np.sin(angles[0]), np.cos(angles[0])],
+            ]
+        )
+        Ry = np.array(
+            [
+                [np.cos(angles[1]), 0, np.sin(angles[1])],
+                [0, 1, 0],
+                [-np.sin(angles[1]), 0, np.cos(angles[1])],
+            ]
+        )
+        Rz = np.array(
+            [
+                [np.cos(angles[2]), -np.sin(angles[2]), 0],
+                [np.sin(angles[2]), np.cos(angles[2]), 0],
+                [0, 0, 1],
+            ]
+        )
         R = np.dot(Rz, np.dot(Ry, Rx))
         data[:, 0:3] = np.dot(data[:, 0:3], R)
         if data.shape[1] > 3:  # use normal
@@ -116,7 +141,9 @@ class RandomScale(object):
             return points, color, normal
 
     def __repr__(self):
-        return 'RandomScale(scale_low: {}, scale_high: {})'.format(self.scale_low, self.scale_high)
+        return "RandomScale(scale_low: {}, scale_high: {})".format(
+            self.scale_low, self.scale_high
+        )
 
 
 class RandomShift(object):
@@ -132,7 +159,7 @@ class RandomShift(object):
             return points, color, normal
 
     def __repr__(self):
-        return 'RandomShift(shift_range: {})'.format(self.shift_range)
+        return "RandomShift(shift_range: {})".format(self.shift_range)
 
 
 class RandomJitter(object):
@@ -141,16 +168,18 @@ class RandomJitter(object):
         self.clip = clip
 
     def __call__(self, points, color, normal=None):
-        assert (self.clip > 0)
-        jitter = np.clip(self.sigma * np.random.randn(points.shape[0], 3), -1 * self.clip, self.clip)
+        assert self.clip > 0
+        jitter = np.clip(
+            self.sigma * np.random.randn(points.shape[0], 3), -1 * self.clip, self.clip
+        )
         points[:, 0:3] += jitter
         if normal is None:
             return points, color
         else:
             return points, color, normal
-    
+
     def __repr__(self):
-        return 'RandomJitter(sigma: {}, clip: {})'.format(self.sigma, self.clip)
+        return "RandomJitter(sigma: {}, clip: {})".format(self.sigma, self.clip)
 
 
 # class ChromaticAutoContrast(object):
@@ -260,7 +289,7 @@ class RandomDropColor(object):
     def __init__(self, p=0.8, color_augment=0.0):
         self.p = p
         self.color_augment = color_augment
-    
+
     def __call__(self, points, color, normal=None):
         if color is not None and np.random.rand() > self.p:
             color *= self.color_augment
@@ -270,24 +299,25 @@ class RandomDropColor(object):
             return points, color, normal
 
     def __repr__(self):
-        return 'RandomDropColor(color_augment: {}, p: {})'.format(self.color_augment, self.p)
+        return "RandomDropColor(color_augment: {}, p: {})".format(
+            self.color_augment, self.p
+        )
 
-        
+
 class ElasticDistortion:
-
     def __init__(self, distortion_params):
         self.distortion_params = distortion_params
 
     def elastic_distortion(self, coords, granularity, magnitude):
         """Apply elastic distortion on sparse coordinate space.
 
-          pointcloud: numpy array of (number of points, at least 3 spatial dims)
-          granularity: size of the noise grid (in same scale[m/cm] as the voxel grid)
-          magnitude: noise multiplier
+        pointcloud: numpy array of (number of points, at least 3 spatial dims)
+        granularity: size of the noise grid (in same scale[m/cm] as the voxel grid)
+        magnitude: noise multiplier
         """
-        blurx = np.ones((3, 1, 1, 1)).astype('float32') / 3
-        blury = np.ones((1, 3, 1, 1)).astype('float32') / 3
-        blurz = np.ones((1, 1, 3, 1)).astype('float32') / 3
+        blurx = np.ones((3, 1, 1, 1)).astype("float32") / 3
+        blury = np.ones((1, 3, 1, 1)).astype("float32") / 3
+        blurz = np.ones((1, 1, 3, 1)).astype("float32") / 3
         coords_min = coords.min(0)
 
         # Create Gaussian noise tensor of the size given by granularity.
@@ -296,17 +326,28 @@ class ElasticDistortion:
 
         # Smoothing.
         for _ in range(2):
-            noise = scipy.ndimage.filters.convolve(noise, blurx, mode='constant', cval=0)
-            noise = scipy.ndimage.filters.convolve(noise, blury, mode='constant', cval=0)
-            noise = scipy.ndimage.filters.convolve(noise, blurz, mode='constant', cval=0)
+            noise = scipy.ndimage.filters.convolve(
+                noise, blurx, mode="constant", cval=0
+            )
+            noise = scipy.ndimage.filters.convolve(
+                noise, blury, mode="constant", cval=0
+            )
+            noise = scipy.ndimage.filters.convolve(
+                noise, blurz, mode="constant", cval=0
+            )
 
         # Trilinear interpolate noise filters for each spatial dimensions.
         ax = [
             np.linspace(d_min, d_max, d)
-            for d_min, d_max, d in zip(coords_min - granularity, coords_min +
-                                       granularity * (noise_dim - 2), noise_dim)
+            for d_min, d_max, d in zip(
+                coords_min - granularity,
+                coords_min + granularity * (noise_dim - 2),
+                noise_dim,
+            )
         ]
-        interp = scipy.interpolate.RegularGridInterpolator(ax, noise, bounds_error=0, fill_value=0)
+        interp = scipy.interpolate.RegularGridInterpolator(
+            ax, noise, bounds_error=0, fill_value=0
+        )
         coords = coords + interp(coords) * magnitude
         return coords
 
@@ -320,15 +361,15 @@ class ElasticDistortion:
         else:
             return points, color, normal
 
-class RandomHorizontalFlip(object):
 
-    def __init__(self, upright_axis='z', is_temporal=False):
+class RandomHorizontalFlip(object):
+    def __init__(self, upright_axis="z", is_temporal=False):
         """
         upright_axis: axis index among x,y,z, i.e. 2 for z
         """
         self.is_temporal = is_temporal
         self.D = 4 if is_temporal else 3
-        self.upright_axis = {'x': 0, 'y': 1, 'z': 2}[upright_axis.lower()]
+        self.upright_axis = {"x": 0, "y": 1, "z": 2}[upright_axis.lower()]
         # Use the rest of axes for flipping.
         self.horz_axes = set(range(self.D)) - set([self.upright_axis])
 
@@ -340,15 +381,15 @@ class RandomHorizontalFlip(object):
                     coords[:, curr_ax] = coord_max - coords[:, curr_ax]
         return coords, feats
 
-class RandomHorizontalFlip_v2(object):
 
-    def __init__(self, upright_axis='z', is_temporal=False):
+class RandomHorizontalFlip_v2(object):
+    def __init__(self, upright_axis="z", is_temporal=False):
         """
         upright_axis: axis index among x,y,z, i.e. 2 for z
         """
         self.is_temporal = is_temporal
         self.D = 4 if is_temporal else 3
-        self.upright_axis = {'x': 0, 'y': 1, 'z': 2}[upright_axis.lower()]
+        self.upright_axis = {"x": 0, "y": 1, "z": 2}[upright_axis.lower()]
         # Use the rest of axes for flipping.
         self.horz_axes = set(range(self.D)) - set([self.upright_axis])
 
@@ -356,11 +397,11 @@ class RandomHorizontalFlip_v2(object):
         if random.random() < 0.95:
             for curr_ax in self.horz_axes:
                 if random.random() < 0.5:
-                    coords[:, curr_ax] = - coords[:, curr_ax]
+                    coords[:, curr_ax] = -coords[:, curr_ax]
         return coords, feats
 
-class ChromaticAutoContrast(object):
 
+class ChromaticAutoContrast(object):
     def __init__(self, randomize_blend_factor=True, blend_factor=0.5):
         self.randomize_blend_factor = randomize_blend_factor
         self.blend_factor = blend_factor
@@ -379,10 +420,13 @@ class ChromaticAutoContrast(object):
 
             contrast_feats = (feats - lo) * scale
 
-            blend_factor = random.random() if self.randomize_blend_factor else self.blend_factor
+            blend_factor = (
+                random.random() if self.randomize_blend_factor else self.blend_factor
+            )
             feats = (1 - blend_factor) * feats + blend_factor * contrast_feats
         feats = feats / 127.5 - 1
         return coords, feats
+
 
 class ChromaticTranslation(object):
     """Add random color to the image, input must be an array in [0,255] or a PIL image"""
@@ -400,9 +444,9 @@ class ChromaticTranslation(object):
             feats[:, :3] = np.clip(tr + feats[:, :3], 0, 255)
         feats = feats / 127.5 - 1
         return coords, feats
-        
-class ChromaticJitter(object):
 
+
+class ChromaticJitter(object):
     def __init__(self, std=0.01):
         self.std = std
 
@@ -415,14 +459,14 @@ class ChromaticJitter(object):
         feats = feats / 127.5 - 1
         return coords, feats
 
-class HueSaturationTranslation(object):
 
+class HueSaturationTranslation(object):
     @staticmethod
     def rgb_to_hsv(rgb):
         # Translated from source of colorsys.rgb_to_hsv
         # r,g,b should be a numpy arrays with values between 0 and 255
         # rgb_to_hsv returns an array of floats between 0.0 and 1.0.
-        rgb = rgb.astype('float')
+        rgb = rgb.astype("float")
         hsv = np.zeros_like(rgb)
         # in case an RGBA array was passed, just copy the A channel
         hsv[..., 3:] = rgb[..., 3:]
@@ -438,7 +482,9 @@ class HueSaturationTranslation(object):
         rc[mask] = (maxc - r)[mask] / (maxc - minc)[mask]
         gc[mask] = (maxc - g)[mask] / (maxc - minc)[mask]
         bc[mask] = (maxc - b)[mask] / (maxc - minc)[mask]
-        hsv[..., 0] = np.select([r == maxc, g == maxc], [bc - gc, 2.0 + rc - bc], default=4.0 + gc - rc)
+        hsv[..., 0] = np.select(
+            [r == maxc, g == maxc], [bc - gc, 2.0 + rc - bc], default=4.0 + gc - rc
+        )
         hsv[..., 0] = (hsv[..., 0] / 6.0) % 1.0
         return hsv
 
@@ -451,7 +497,7 @@ class HueSaturationTranslation(object):
         rgb = np.empty_like(hsv)
         rgb[..., 3:] = hsv[..., 3:]
         h, s, v = hsv[..., 0], hsv[..., 1], hsv[..., 2]
-        i = (h * 6.0).astype('uint8')
+        i = (h * 6.0).astype("uint8")
         f = (h * 6.0) - i
         p = v * (1.0 - s)
         q = v * (1.0 - s * f)
@@ -461,7 +507,7 @@ class HueSaturationTranslation(object):
         rgb[..., 0] = np.select(conditions, [v, q, p, p, t, v], default=v)
         rgb[..., 1] = np.select(conditions, [v, v, v, q, p, p], default=t)
         rgb[..., 2] = np.select(conditions, [v, p, t, v, v, q], default=p)
-        return rgb.astype('uint8')
+        return rgb.astype("uint8")
 
     def __init__(self, hue_max, saturation_max):
         self.hue_max = hue_max
@@ -479,4 +525,3 @@ class HueSaturationTranslation(object):
 
         feats = feats / 127.5 - 1
         return coords, feats
-

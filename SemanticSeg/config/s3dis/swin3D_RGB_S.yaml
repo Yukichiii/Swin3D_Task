@@ -33,7 +33,6 @@ TRAIN:
   up_k: 3
   drop_path_rate: 0.3
   concat_xyz: True
-  max_batch_points: 400000
 
   # training
   aug: True
