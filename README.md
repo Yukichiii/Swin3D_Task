@@ -21,12 +21,15 @@ This repo contains the experiment code for [Swin3D](https://github.com/microsoft
 
 ## Overview
 - [Data Preparation](#data-preparation)
+- [Environment](#environment)
 - [Pretrained Models](#pretrained-models)
 - [Quick Start](#quick-start)
 - [Results and models](#results-and-models)
 - [Citation](#citation)
 
 ## Data Preparation
+
+## Environment
 
 ### ScanNet Segmentation Data
 

@@ -19,8 +19,13 @@ from timm.scheduler import CosineLRScheduler
 from torch.utils.tensorboard import SummaryWriter
 
 from util import config
-from datasets.s3dis import S3DIS_Point
-from datasets.scannet_v2 import Scannetv2_Point, Scannetv2_Normal_Point
+from datasets.s3dis import S3DIS, S3DIS_Point
+from datasets.scannet_v2 import (
+    Scannetv2,
+    Scannetv2_Normal,
+    Scannetv2_Point,
+    Scannetv2_Normal_Point,
+)
 from util.common_util import (
     AverageMeter,
     intersectionAndUnionGPU,
@@ -28,7 +33,7 @@ from util.common_util import (
     poly_learning_rate,
     smooth_loss,
 )
-from util.data_util import collate_fn_pts
+from util.data_util import collate_fn, collate_fn_pts
 from util import transform
 from util.logger import get_logger
 
@@ -280,7 +285,7 @@ def main_worker(gpu, ngpus_per_node, argss):
                     ),
                 ]
             )
-        train_data = S3DIS_Point(
+        train_data = S3DIS(
             split="train",
             data_root=args.data_root,
             test_area=args.test_area,
@@ -314,7 +319,7 @@ def main_worker(gpu, ngpus_per_node, argss):
             logger.info("scannet. train_split: {}".format(train_split))
 
         if args.data_name == "scannetv2":
-            train_data = Scannetv2_Point(
+            train_data = Scannetv2(
                 split=train_split,
                 data_root=args.data_root,
                 voxel_size=args.voxel_size,
@@ -324,7 +329,7 @@ def main_worker(gpu, ngpus_per_node, argss):
                 loop=args.loop,
             )
         elif args.data_name == "scannetv2_normal":
-            train_data = Scannetv2_Normal_Point(
+            train_data = Scannetv2_Normal(
                 split=train_split,
                 data_root=args.data_root,
                 voxel_size=args.voxel_size,
@@ -350,7 +355,7 @@ def main_worker(gpu, ngpus_per_node, argss):
         pin_memory=True,
         sampler=train_sampler,
         drop_last=True,
-        collate_fn=collate_fn_pts,
+        collate_fn=collate_fn,
     )
 
     val_transform = None
@@ -566,7 +571,7 @@ def train(train_loader, model, criterion, optimizer, epoch, scaler, scheduler):
     model.train()
     end = time.time()
     max_iter = args.epochs * len(train_loader)
-    for i, (coord, feat, target, offset, target_pts, inverse_map) in enumerate(
+    for i, (coord, feat, target, offset) in enumerate(
         train_loader
     ):
         data_time.update(time.time() - end)

@@ -47,9 +47,9 @@ TRAIN:
   use_amp: True
   optimizer: AdamW
   ignore_label: 255
-  train_gpu: [0,1] 
+  train_gpu: [0] 
   workers: 16  # data loader workers
-  batch_size: 4 # batch size for training
+  batch_size: 3 # batch size for training
   batch_size_val: 2 # batch size for validation during training, memory and speed tradeoff
   base_lr: 0.0006
   epochs: 100
