@@ -1,0 +1,79 @@
+DATA:
+  #data_name: scannetv2
+  data_name: scannetv2_normal
+  data_root: /mnt/data/ScanNet/scannetv2
+  classes: 20
+  #fea_dim: 6
+  fea_dim: 9
+  voxel_size: 0.02 
+  voxel_max: 120000 
+  loop: 1 
+
+TRAIN:
+  # arch
+  #train_split: trainval_v2
+  #val_split: val_v2
+  arch: Swin3D_RGBN
+  fp16_mode: 1
+  stem_transformer: True
+  use_xyz: True
+  use_offset: True
+  sync_bn: True  # adopt sync_bn or not
+  rel_query: True
+  rel_key: True
+  rel_value: True
+  quant_size: 4 # pos_bias_table: 2x(4x5)-1 = 39
+  #drop_color: 0.0
+  num_layers: 5 
+  patch_size: 1 
+  window_size: [5,7,7,7,7] 
+  depths: [2,4,9,4,4] 
+  down_stride: 3
+  channels: [80, 160, 320, 640, 640] 
+  num_heads: [10, 10, 20, 40, 40]
+  signal: True
+  knn_down: True
+  upsample: linear_attn
+  up_k: 3
+  drop_path_rate: 0.3
+  concat_xyz: True
+  max_batch_points: 250000
+
+  # training
+  aug: True
+  transformer_lr_scale: 0.1 
+  scheduler_update: step 
+  scheduler: CosineWithWarmup 
+  warmup: linear
+  warmup_iters: 3000
+  warmup_ratio: 0.000001
+  use_amp: True
+  optimizer: AdamW #SGD
+  train_gpu: [2] 
+  workers: 16  # data loader workers
+  batch_size: 1 # batch size for training
+  batch_size_val: 1 # batch size for validation during training, memory and speed tradeoff
+  base_lr: 0.006
+  epochs: 100
+  start_epoch: 0
+  step_epoch: 30
+  multiplier: 0.1
+  momentum: 0.9
+  weight_decay: 0.05
+  drop_rate: 0.5
+
+  ignore_label: -100 #255
+  manual_seed: 123
+  print_freq: 1
+  save_freq: 1
+  save_path: runs/scannetv2/swin3D_RGBN_L
+  weight:  # path to initial weight (default: none)
+  resume:  # path to latest checkpoint (default: none)
+  evaluate: True  # evaluate on validation set, extra gpu memory needed and small batch_size_val is recommend
+  eval_freq: 5
+Distributed:
+  dist_url: tcp://127.0.0.1:6789
+  dist_backend: 'nccl'
+  multiprocessing_distributed: True
+  world_size: 1
+  rank: 0

@@ -1,0 +1,10 @@
+*/amlt_config
+runs
+*__pycache__*
+*.npy
+*.npz
+*.ply
+.amltignore
+legacy
+SemanticSeg/swin3d_unittest.py
+scripts.txt

@@ -1,0 +1,78 @@
+DATA:
+  data_name: s3dis
+  yz_shift: True
+  data_root: /mnt/data/S3DIS/stanford_indoor3d
+  test_area: 5
+  classes: 13
+  fea_dim: 6
+  voxel_size: 0.04
+  voxel_max: 80000
+  loop: 6
+
+TRAIN:
+  # arch
+  arch: Swin3D_RGB
+  fp16_mode: 2
+  stem_transformer: True
+  use_xyz: True
+  use_offset: True
+  sync_bn: True  # adopt sync_bn or not
+  rel_query: True
+  rel_key: True
+  rel_value: True
+  quant_size: 4 # pos_bias_table: 2x(4x5)-1 = 39
+  num_layers: 5 
+  patch_size: 1 
+  window_size: [5, 7, 7, 7, 7] 
+  depths: [2, 4, 9, 4, 4] 
+  channels: [48, 96, 192, 384, 384] 
+  num_heads: [6, 6, 12, 24, 24]
+  knn_down: True
+  down_stride: 2
+  upsample: linear_attn
+  up_k: 3
+  drop_path_rate: 0.3
+  concat_xyz: True
+  max_batch_points: 400000
+
+  # training
+  aug: True
+  transformer_lr_scale: 0.1 
+  jitter_sigma: 0.005
+  jitter_clip: 0.02
+  scheduler_update: epoch 
+  scheduler: MultiStep 
+  warmup: linear
+  warmup_iters: 1500
+  warmup_ratio: 0.000001
+  use_amp: True
+  optimizer: AdamW
+  ignore_label: 255
+  train_gpu: [0,1] 
+  workers: 16  # data loader workers
+  batch_size: 4 # batch size for training
+  batch_size_val: 2 # batch size for validation during training, memory and speed tradeoff
+  base_lr: 0.0006
+  epochs: 100
+  start_epoch: 0
+  step_epoch: 30
+  multiplier: 0.1
+  momentum: 0.9
+  weight_decay: 0.05
+  drop_rate: 0.5
+  manual_seed: 123
+  print_freq: 2
+  save_freq: 1
+  save_path: runs/s3dis_Swin3D_RGB_load
+  weight: runs/yuxiao/XYZRGB_C96_dec_offset/model/model_last.pth # path to initial weight (default: none)
+  resume: latest  # path to latest checkpoint (default: none)
+  skip_first_conv: False
+  evaluate: True  # evaluate on validation set, extra gpu memory needed and small batch_size_val is recommend
+  eval_freq: 2
+Distributed:
+  dist_url: tcp://127.0.0.1:6789
+  dist_backend: 'nccl'
+  multiprocessing_distributed: True
+  world_size: 1
+  rank: 0
+
