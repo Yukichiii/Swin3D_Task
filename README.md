@@ -50,11 +50,13 @@ Change the work directory to SemanticSeg
 To train model on ScanNet Segmentation Task with Swin3D-S or Swin3D-L from scratch:
 
       python train.py --config config/scannetv2/swin3D_RGBN_S.yaml
+      or
       python train.py --config config/scannetv2/swin3D_RGBN_L.yaml
 
-To finetune the model pretrained on Structured3D, you can download the pretrained model [here](), and run:
+To finetune the model pretrained on Structured3D, you can download the pretrained model with cRSE(XYZ,RGB,Norm) [here](https://github.com/microsoft/Swin3D#pretrained-models), and run:
 
       python train.py --config config/scannetv2/swin3D_RGBN_S.yaml args.weight PATH_TO_PRETRAINED_SWIN3D_RGBN_S
+      or
       python train.py --config config/scannetv2/swin3D_RGBN_L.yaml args.weight PATH_TO_PRETRAINED_SWIN3D_RGBN_L
 
 ### S3DIS Segmentation
@@ -65,25 +67,31 @@ Change the work directory to SemanticSeg
 To train model on S3DIS Area5 Segmentation with Swin3D-S or Swin3D-L from scratch:
 
       python train.py --config config/s3dis/swin3D_RGB_S.yaml
+      or
       python train.py --config config/s3dis/swin3D_RGB_L.yaml
 
-To finetune the model pretrained on Structured3D, you can download the pretrained model [here](), and run:
+To finetune the model pretrained on Structured3D, you can download the pretrained model with cRSE(XYZ,RGB) [here](https://github.com/microsoft/Swin3D#pretrained-models), and run:
 
       python train.py --config config/s3dis/swin3D_RGB_S.yaml args.weight PATH_TO_PRETRAINED_SWIN3D_RGB_S
+      or
       python train.py --config config/s3dis/swin3D_RGB_L.yaml args.weight PATH_TO_PRETRAINED_SWIN3D_RGB_L
 
 ## Evaluation
-To forward the our model with given checkpoint, you can download the model [below](#results-and-models) and run:
+To forward Swin3D with given checkpoint with TTA(Test Time Augmentation, we random rotate the input scan and vote the result), you can download the model [below](#results-and-models) and run:
+
 ScanNet Segmentation
 
-      python test.py --config config/scannetv2/swin3D_RGBN_S.yaml args.weight PATH_TO_CKPT
-      python test.py --config config/scannetv2/swin3D_RGBN_L.yaml args.weight PATH_TO_CKPT
+      python test.py --config config/scannetv2/swin3D_RGBN_S.yaml --vote_num 12 args.weight PATH_TO_CKPT
+      or
+      python test.py --config config/scannetv2/swin3D_RGBN_L.yaml --vote_num 12 args.weight PATH_TO_CKPT
 
 S3DIS Area5 Segmentation
 
-      python test.py --config config/s3dis/swin3D_RGB_S.yaml args.weight PATH_TO_CKPT
-      python test.py --config config/s3dis/swin3D_RGB_L.yaml args.weight PATH_TO_CKPT
+      python test.py --config config/s3dis/swin3D_RGB_S.yaml --vote_num 12 args.weight PATH_TO_CKPT
+      or
+      python test.py --config config/s3dis/swin3D_RGB_L.yaml --vote_num 12 args.weight PATH_TO_CKPT
 
+For faster forward, you can change the `vote_num` to 1.
 
 ## Results and models
 
