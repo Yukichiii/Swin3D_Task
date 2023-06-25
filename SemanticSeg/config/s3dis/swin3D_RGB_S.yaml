@@ -12,7 +12,7 @@ DATA:
 TRAIN:
   # arch
   arch: Swin3D_RGB
-  fp16_mode: 2
+  fp16_mode: 1
   stem_transformer: True
   use_xyz: True
   use_offset: True
@@ -27,6 +27,7 @@ TRAIN:
   depths: [2, 4, 9, 4, 4] 
   channels: [48, 96, 192, 384, 384] 
   num_heads: [6, 6, 12, 24, 24]
+  signal: True
   knn_down: True
   down_stride: 2
   upsample: linear_attn
@@ -60,10 +61,11 @@ TRAIN:
   weight_decay: 0.05
   drop_rate: 0.5
   manual_seed: 123
-  print_freq: 2
+  print_freq: 10
   save_freq: 1
-  save_path: runs/s3dis_Swin3D_RGB_load
-  weight: runs/yuxiao/XYZRGB_C96_dec_offset/model/model_last.pth # path to initial weight (default: none)
+  save_path: runs/s3dis_Swin3D_RGB_S
+  weight:  # path to initial weight (default: none)
+  weight_for_innner_model: False
   resume: latest  # path to latest checkpoint (default: none)
   skip_first_conv: False
   evaluate: True  # evaluate on validation set, extra gpu memory needed and small batch_size_val is recommend

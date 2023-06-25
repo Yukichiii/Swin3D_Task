@@ -7,12 +7,10 @@ DATA:
   fea_dim: 9
   voxel_size: 0.02 
   voxel_max: 120000 
-  loop: 1 
+  loop: 6
 
 TRAIN:
   # arch
-  #train_split: trainval_v2
-  #val_split: val_v2
   arch: Swin3D_RGBN
   fp16_mode: 1
   stem_transformer: True
@@ -26,8 +24,8 @@ TRAIN:
   #drop_color: 0.0
   num_layers: 5 
   patch_size: 1 
-  window_size: [5,7,7,7,7] 
-  depths: [2,4,9,4,4] 
+  window_size: [5, 7, 7, 7, 7] 
+  depths: [2, 4, 9, 4, 4] 
   down_stride: 3
   channels: [48, 96, 192, 384, 384] 
   num_heads: [6, 6, 12, 24, 24]
@@ -48,10 +46,10 @@ TRAIN:
   warmup_ratio: 0.000001
   use_amp: True
   optimizer: AdamW #SGD
-  train_gpu: [2] 
+  train_gpu: [0] 
   workers: 16  # data loader workers
-  batch_size: 1 # batch size for training
-  batch_size_val: 1 # batch size for validation during training, memory and speed tradeoff
+  batch_size: 3 # batch size for training
+  batch_size_val: 2 # batch size for validation during training, memory and speed tradeoff
   base_lr: 0.006
   epochs: 100
   start_epoch: 0
@@ -63,11 +61,13 @@ TRAIN:
 
   ignore_label: -100 #255
   manual_seed: 123
-  print_freq: 1
+  print_freq: 10
   save_freq: 1
   save_path: runs/scannetv2/swin3D_RGBN_S
   weight:  # path to initial weight (default: none)
-  resume:  # path to latest checkpoint (default: none)
+  weight_for_innner_model: False
+  resume: latest  # path to latest checkpoint (default: none)
+  skip_first_conv: True
   evaluate: True  # evaluate on validation set, extra gpu memory needed and small batch_size_val is recommend
   eval_freq: 5
 Distributed:

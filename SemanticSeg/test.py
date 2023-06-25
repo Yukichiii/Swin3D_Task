@@ -177,6 +177,7 @@ def main_worker(gpu, ngpus_per_node, argss):
     assert (".pth" in args.weight) and os.path.isfile(args.weight)
 
     if args.weight:
+        weight_for_innner_model = args.get('weight_for_innner_model', False)
         if os.path.isfile(args.weight):
             if main_process():
                 logger.info("=> loading weight '{}'".format(args.weight))
@@ -187,7 +188,10 @@ def main_worker(gpu, ngpus_per_node, argss):
                 weights = {
                     k.partition("module.")[2]: weights[k] for k in weights.keys()
                 }
-            model.backbone.load_state_dict(weights)
+            if weight_for_innner_model:
+                model.backbone.load_state_dict(weights)
+            else:
+                model.load_state_dict(weights)
             if main_process():
                 logger.info(
                     "=> loaded weight '{}' (epoch {})".format(
@@ -311,17 +315,17 @@ def validate(val_loader, model, vote_num=12):
     torch.cuda.empty_cache()
 
     model.eval()
-    classifier = model.backbone.classifier
-    cls_find_nan = False
-    for k, v in classifier.state_dict().items():
-        if torch.isnan(v).any():
-            print(k, "is nan!")
-            cls_find_nan = True
-    if cls_find_nan:
-        print("set classifier to train mode!")
-        classifier.train()
-    else:
-        print("keep classifier in val mode!")
+    # classifier = model.backbone.classifier
+    # cls_find_nan = False
+    # for k, v in classifier.state_dict().items():
+    #     if torch.isnan(v).any():
+    #         print(k, "is nan!")
+    #         cls_find_nan = True
+    # if cls_find_nan:
+    #     print("set classifier to train mode!")
+    #     classifier.train()
+    # else:
+    #     print("keep classifier in val mode!")
     val_num = len(val_loader)
     print(val_num, vote_num)
     assert val_num % vote_num == 0

@@ -12,7 +12,7 @@ DATA:
 TRAIN:
   # arch
   arch: Swin3D_RGB
-  fp16_mode: 2
+  fp16_mode: 1
   stem_transformer: True
   use_xyz: True
   use_offset: True
@@ -27,6 +27,7 @@ TRAIN:
   depths: [2, 4, 9, 4, 4] 
   channels: [80, 160, 320, 640, 640] 
   num_heads: [10, 10, 20, 40, 40]
+  signal: True
   knn_down: True
   down_stride: 2
   upsample: linear_attn
@@ -49,7 +50,7 @@ TRAIN:
   ignore_label: 255
   train_gpu: [0] 
   workers: 16  # data loader workers
-  batch_size: 2 # batch size for training
+  batch_size: 3 # batch size for training
   batch_size_val: 2 # batch size for validation during training, memory and speed tradeoff
   base_lr: 0.001
   epochs: 100
@@ -60,10 +61,11 @@ TRAIN:
   weight_decay: 0.05
   drop_rate: 0.5
   manual_seed: 123
-  print_freq: 1
+  print_freq: 10
   save_freq: 1
-  save_path: runs/s3dis_cos_1000ep_sparseswin_RGB_w7_s2_C160_area5
-  weight: /mnt/code/SparseSwin/runs/RGBN_w7_s3_C160_load_XYZRGBNorm_offset_85ep_123/model_last.pth # path to initial weight (default: none)
+  save_path: runs/s3dis_Swin3D_RGB_L
+  weight:  # path to initial weight (default: none)
+  weight_for_innner_model: False
   resume: latest  # path to latest checkpoint (default: none)
   skip_first_conv: False
   evaluate: True  # evaluate on validation set, extra gpu memory needed and small batch_size_val is recommend

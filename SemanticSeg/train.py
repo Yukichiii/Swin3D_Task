@@ -154,7 +154,7 @@ def main_worker(gpu, ngpus_per_node, argss):
         signal=args.get("signal", True),
         in_channels=args.get("fea_dim", 6),
         use_offset=args.get("use_offset", False),
-        fp16_mode=args.get("fp16_mode", 0),
+        fp16_mode=args.get("fp16_mode", 1),
     )
 
     # set loss func
