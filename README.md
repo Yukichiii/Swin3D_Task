@@ -28,6 +28,20 @@ This repo contains the experiment code for [Swin3D](https://github.com/microsoft
 - [Citation](#citation)
 
 ## Environment
+  1. Install dependencies
+
+            pip install -r requirements.txt
+      
+  2. Refer to this [repo](https://github.com/microsoft/swin3d) to compile the operation of swin3d
+
+            git clone https://github.com/microsoft/Swin3D
+            cd Swin3D
+            python setup.py install
+
+
+If you have problems installing the package, you can use the docker we provide:
+
+      docker pull yukichiii/torch112_cu113:swin3d
 
 ## Data Preparation
 
