@@ -8,3 +8,4 @@ runs
 legacy
 SemanticSeg/swin3d_unittest.py
 scripts.txt
+ObjectDet/FCAF3D/work_dirs

@@ -7,10 +7,21 @@
 [![PWC](https://img.shields.io/endpoint.svg?url=https://paperswithcode.com/badge/swin3d-a-pretrained-transformer-backbone-for/3d-object-detection-on-s3dis)](https://paperswithcode.com/sota/3d-object-detection-on-s3dis?p=swin3d-a-pretrained-transformer-backbone-for)
 
 ## Updates
+***To be Done***
+1. Release the whole training scripts with CAGroup3D+Swin3D
+2. Upload the models and configs for FCAF3D+Swin3D
+3. Upload the models and configs for CAGroup3D+Swin3D
+
+
+***26/03/2024***
+
+**Add Object Detction code:**
+1. Update Object Detection code and configs with FCAF3D+Swin3D
+2. Update patch for CAGroup3D+Swin3D
 
 ***27/04/2023***
 
-Initial commits:
+**Initial commits:**
 
 1. The supported code and models for Semantic Segmentation on ScanNet and S3DIS are provided.
 
@@ -43,6 +54,8 @@ If you have problems installing the package, you can use the docker we provide:
 
       docker pull yukichiii/torch112_cu113:swin3d
 
+To run the code for object detection, please refer to [FCAF3D](https://github.com/SamsungLabs/fcaf3d)(which is based on mmdetection3d) and [CAGroup3D](https://github.com/Haiyang-W/CAGroup3D)(which is based on OpenPCDet). Install the requirements for mmdetection3d and run `python setup.py install` to install mmdetection3d.
+
 ## Data Preparation
 
 ### ScanNet Segmentation Data
@@ -52,8 +65,10 @@ Please refer to https://github.com/dvlab-research/PointGroup for the ScanNetv2 p
 Please refer to https://github.com/yanx27/Pointnet_Pointnet2_pytorch for S3DIS preprocessing. Then modify the data_root entry in the yaml files in `SemanticSeg/config/s3dis`.
 
 ### ScanNet 3D Detection Data
+Please refer to https://github.com/SamsungLabs/fcaf3d for ScanNet preprocessing. Then modify the data_root entry in the config files in `ObjectDet/FCAF3D/configs/scannet_det`.
 
 ### S3DIS 3D Detection Data
+Please refer to https://github.com/SamsungLabs/fcaf3d for S3DIS preprocessing. Then modify the data_root entry in the config files in `ObjectDet/FCAF3D/configs/s3dis_det`.
 
 ## Training
 ### ScanNet Segmentation
@@ -90,6 +105,17 @@ To finetune the model pretrained on Structured3D, you can download the pretraine
       or
       python train.py --config config/s3dis/swin3D_RGB_L.yaml args.weight PATH_TO_PRETRAINED_SWIN3D_RGB_L
 
+### 3D Object Detection
+To train from sratch with FCAF3D+Swin3D:
+
+      python -m tools.train configs/scannet_det/Swin3D_S.py
+
+To finetune the model pretrained on Structured3D, you can download the pretrained model with cRSE(XYZ,RGB), and run:
+
+      python -m tools.train configs/scannet_det/Swin3D_S.py --load_weights PATH_TO_PRETRAINED_SWIN3D_RGB_S
+      python -m tools.train configs/scannet_det/Swin3D_L.py --load_weights PATH_TO_PRETRAINED_SWIN3D_RGB_L
+
+
 ## Evaluation
 To forward Swin3D with given checkpoint with TTA(Test Time Augmentation, we random rotate the input scan and vote the result), you can download the model [below](#results-and-models) and run:
 
@@ -106,6 +132,12 @@ S3DIS Area5 Segmentation
       python test.py --config config/s3dis/swin3D_RGB_L.yaml --vote_num 12 args.weight PATH_TO_CKPT
 
 For faster forward, you can change the `vote_num` to 1.
+
+### 3D Object Detection
+For Detection task with FCAF3D+Swin3D:
+
+      python -m tools.test configs/scannet_det/Swin3D_S.py CHECKPOINT_PATH --eval mAP --show-dir OUTPUT_PATH --out OUTPUT_PATH/result.pkl
+
 
 ## Results and models
 
